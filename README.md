@@ -20,7 +20,7 @@ most people assume that if i can see my house on my phone, then a hacker can too
 
 📂 how to use
 
-- ensure all files are in the same folder.
+- clone or git pull repo
 
 - open ha-remote.html in a browser. no server or hosting required.
 
