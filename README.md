@@ -2,6 +2,8 @@
 
 this is a lightweight, interactive map built to show parents (and anyone else who still thinks 'online' equals 'hacked') exactly how a resilient home network works.
 
+i wanted to share this because a large portion of the community will set up an instance for their elderly or handicapped family members and this is to alleviate some of the distrust and ease the process by providing easy to understand, interactive study material you can let them use when they're ready. i have a family member that got frustrated when i would try to explain the safety of it to them because even "the internet can be safe" can be confusing enough to cause a shut down. 
+
 ---
 
 <br>
@@ -13,6 +15,7 @@ this is a lightweight, interactive map built to show parents (and anyone else wh
 <br><br>
 
 most people assume that if i can see my house on my phone, then a hacker can too. this tool is designed to dismantle that fear by visually proving the difference between a public front door and a private, encrypted vault.
+
 🚀 why it exists
 - prove isolation: show that zone b (your lab/mess) is physically and logically separated from zone a (their house). if your stuff breaks, their stuff stays green.
 
