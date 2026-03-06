@@ -34,6 +34,16 @@ required assets in folder:
 
 - tailscale.webp
 
+
+<h3>future</h3>
+
+
+adapt for proper mobile view
+
+---
+
+
+
 📜 license
 
 open source (mit). fork it, fix it, use it to win your next argument about why there is a server in the guest room.
