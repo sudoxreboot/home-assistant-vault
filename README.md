@@ -39,13 +39,19 @@ most people assume that if i can see my house on my phone, then a hacker can too
 
 required assets in folder:
 
-- home-assistant-vault.html
+home-assistant-vault:
 
-- ha-icon.webp
+  - home-assistant-vault.html
 
-- lab.png
+  - home-assistant-vault/assets:
 
-- tailscale.webp
+    - ha-icon.webp
+
+    - lab.png
+
+    - tailscale.webp
+
+    - vault.png
 
 
 <h3>future</h3>
