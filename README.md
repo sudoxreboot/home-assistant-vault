@@ -2,6 +2,16 @@
 
 this is a lightweight, interactive map built to show parents (and anyone else who still thinks 'online' equals 'hacked') exactly how a resilient home network works.
 
+---
+
+<br>
+<div align="center">
+
+  <img src="gh-assets/screenshot-ha-vault.png" width="1080" alt="nightd icon">
+
+</div>
+<br><br>
+
 most people assume that if i can see my house on my phone, then a hacker can too. this tool is designed to dismantle that fear by visually proving the difference between a public front door and a private, encrypted vault.
 🚀 why it exists
 - prove isolation: show that zone b (your lab/mess) is physically and logically separated from zone a (their house). if your stuff breaks, their stuff stays green.
