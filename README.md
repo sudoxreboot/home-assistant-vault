@@ -35,11 +35,11 @@ most people assume that if i can see my house on my phone, then a hacker can too
 
 - clone or git pull repo
 
-- open ha-remote.html in a browser. no server or hosting required.
+- open home-assistant-vault.html in a browser. no server or hosting required.
 
 required assets in folder:
 
-- ha-remote.html
+- home-assistant-vault.html
 
 - ha-icon.webp
 
