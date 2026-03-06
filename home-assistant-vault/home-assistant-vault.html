@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.1, minimum-scale=0.1, maximum-scale=5.0">
+    <title>home assistant vault</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/vault.png">
+
+    <style>
+        :root {
+            --bg-color: #1f1f1f;
+            --grid-color: rgba(170, 153, 255, 0.1);
+            --primary: #88ffee;
+            --secondary: #aa99ff;
+            --node-bg: #2a2a2a;
+            --text-color: #fff;
+            --status-ok: #2ecc71;
+            --status-fail: #e74c3c;
+            --status-warn: #f1c40f;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            min-width: 1100px;
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+            text-transform: lowercase;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            text-align: center;
+            width: 1100px;
+        }
+
+        #controls {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 1100px;
+            z-index: 1000;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: 1px solid var(--secondary);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11.2px;
+            background-color: var(--bg-color);
+            color: var(--secondary);
+            transition: all 0.3s ease;
+            text-transform: lowercase;
+            white-space: nowrap;
+        }
+
+        button.active {
+            background-color: var(--primary);
+            color: var(--bg-color);
+            border-color: var(--primary);
+        }
+
+        #main-container {
+            display: flex;
+            flex-direction: column;
+            width: 1100px;
+            min-width: 1100px;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .columns-row {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            margin-bottom: 60px;
+        }
+
+        .network-zone {
+            flex: 1;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid;
+            transition: border-color 0.5s ease;
+            position: relative;
+            background: rgba(31, 31, 31, 0.9);
+            z-index: 2;
+            min-width: 250px;
+        }
+
+        .zone-label {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: var(--bg-color);
+            padding: 0 10px;
+            color: var(--secondary);
+            font-size: 14.7px;
+            text-transform: lowercase;
+        }
+
+        .node-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .node {
+            background-color: var(--node-bg);
+            border-radius: 8px;
+            padding: 15px 10px 10px 10px;
+            width: 85%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid transparent;
+            transition: border-color 0.5s ease;
+            font-size: 11.2px;
+            line-height: 1.2;
+        }
+
+        .icon { font-size: 22.4px; margin-bottom: 8px; display: block; }
+        .ha-img { width: 22.4px; height: 22.4px; margin: 0 auto 8px auto; display: block; }
+
+        .link {
+            width: 5px;
+            background-color: var(--primary);
+            height: 30px;
+            transition: background-color 0.5s ease;
+        }
+
+        .status-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .status-label {
+            position: absolute;
+            top: 6px;
+            left: 20px;
+            font-size: 8px;
+            font-weight: bold;
+            pointer-events: none;
+            transition: color 0.5s ease;
+        }
+
+        .ha-info, .info-icon {
+            position: absolute;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            font-size: 8px;
+            cursor: pointer;
+            background: rgba(31, 31, 31, 0.6);
+            z-index: 101;
+        }
+
+        .ha-info {
+            top: 5px;
+            right: 5px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .info-icon {
+            bottom: 5px;
+            right: 5px;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .ha-info:hover::after, .info-icon:hover::after {
+            position: absolute;
+            width: 180px;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 10px;
+            line-height: 1.3;
+            text-transform: none;
+            z-index: 100;
+            text-align: left;
+            pointer-events: none;
+            white-space: pre-wrap;
+        }
+
+        .ha-info:hover::after {
+            content: "home assistant is built on a local-first architecture, ensuring your data never leaves the network by default.\A\A being open-source, the code is under constant scrutiny by a global community of millions to guarantee there are no backdoors or shady hidden behaviors.\A\Ahome assistant is owned by The Open Home Foundation, a non-profit, that is never allowed to sell or monetize home assistant to maintain its purity and its pillars:\Aprivacy - your data stays with you, not for sale\A choice - devices work across brands\Asustainability - devices work after no longer supported (sometimes unavoidable)";
+            top: 20px;
+            right: -10px;
+            width: 280px;
+            border: 1px solid var(--primary);
+        }
+
+        .info-icon:hover::after {
+            content: "opening ports is like leaving your front door unlocked.\A\Athis tunnel is a secure trapdoor in your floor, accessible only through a encrypted vault called 'tailscale' and guarded by a 24/7 digital bouncer that only knows your face.\A\A'with tailscale not only can you reach your local bananas on your banana tree, but you can create a tunnel to other banana trees so you can reach other bananas over the internet'\A                           - th3silentone (reddit)";
+            bottom: 25px;
+            right: -10px;
+            width: 200px;
+            font-size: 11px;
+            line-height: 1.4;
+            border: 1px solid var(--secondary);
+        }
+
+        .light-on { background-color: var(--status-ok); box-shadow: 0 0 8px var(--status-ok); }
+        .light-off { background-color: var(--status-fail); box-shadow: 0 0 8px var(--status-fail); }
+        .label-on { color: var(--status-ok); }
+        .label-off { color: var(--status-fail); }
+
+        #tailscale-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            position: absolute;
+            left: 67.5%;
+            top: 90%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        #tailscale-tunnel {
+            width: 140px;
+            height: 70px;
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            background: var(--node-bg) url('assets/tailscale.webp') center/cover no-repeat;
+            position: relative;
+        }
+
+        #svg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .flow-line {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 12, 6;
+            animation: flow 1s linear infinite;
+        }
+
+        .internet-path { stroke: var(--primary); }
+        .ts-path { stroke: var(--secondary); }
+
+        @keyframes flow {
+            from { stroke-dashoffset: 18; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        body.normal #zone-a-network, body.normal #zone-b-network { border-color: var(--status-ok); }
+        body.zone-b-down #zone-a-network { border-color: var(--status-ok); }
+        body.zone-b-down #zone-b-network { border-color: var(--status-fail); }
+        body.catastrophic .network-zone { border-color: var(--status-fail); }
+    </style>
+</head>
+<body class="normal">
+
+    <h1>home assistant vault</h1>
+
+    <div id="controls">
+        <button id="btn-normal" class="active" onclick="setState('normal')">✅ normal operation</button>
+        <button id="btn-zone-b-down" onclick="setState('zone-b-down')">⚠️ zone b failure</button>
+        <button id="btn-catastrophic" onclick="setState('catastrophic')">🚨 catastrophic failure</button>
+    </div>
+
+    <div id="main-container">
+        <svg id="svg-canvas" viewBox="0 0 1100 800" preserveAspectRatio="xMidYMid meet">
+            <path id="internet-to-zone-a" d="M 30,210 L 325,210" class="flow-line internet-path" />
+            <path id="zone-a-to-zone-b" d="M 780,210 L 1075,210" class="flow-line internet-path" />
+            <path id="ts-detailed" d="M 700,550 L 700,790 L 1155,790 L 1155,550" class="flow-line ts-path" />
+        </svg>
+
+        <div class="columns-row">
+            <div id="internet-column" class="network-zone" style="border-color: var(--primary);">
+                <div class="zone-label">the internet</div>
+                <div class="node-container">
+                    <div id="node-internet" class="node" style="width: 90%;">
+                        <div class="icon">🌐</div>
+                        the internet
+                    </div>
+                </div>
+            </div>
+
+            <div id="zone-a-network" class="network-zone">
+                <div class="zone-label">zone a</div>
+                <div class="node-container">
+                    <div id="zone-a-router" class="node">
+                        <div class="status-light light-on"></div>
+                        <span class="status-label label-on">online</span>
+                        <div class="icon">📶</div>
+                        zone a router
+                    </div>
+                    <div class="link"></div>
+                    <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+                        <div id="zone-a-devices" class="node" style="width: 45%;">
+                            <div class="status-light light-on"></div>
+                            <span class="status-label label-on">online</span>
+                            <div class="icon" style="color: var(--primary);">💡</div>
+                            zone a devices
+                        </div>
+                        <div id="zone-a-ha" class="node" style="width: 45%;">
+                            <span class="ha-info" onclick="">i</span>
+                            <div class="status-light light-on"></div>
+                            <span class="status-label label-on">online</span>
+                            <img src="assets/ha-icon.webp" class="ha-img" alt="home assistant">
+                            home assistant
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="zone-b-network" class="network-zone">
+                <div class="zone-label">zone b</div>
+                <div class="node-container">
+                    <div id="zone-b-router" class="node">
+                        <div class="status-light light-on"></div>
+                        <span class="status-label label-on">online</span>
+                        <div class="icon">📶</div>
+                        zone b router
+                    </div>
+                    <div class="link"></div>
+                    <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+                        <div id="zone-b-ha" class="node" style="width: 45%;">
+                            <span class="ha-info" onclick="">i</span>
+                            <div class="status-light light-on"></div>
+                            <span class="status-label label-on">online</span>
+                            <img src="assets/ha-icon.webp" class="ha-img" alt="b ha">
+                            home assistant
+                        </div>
+                        <div id="zone-b-devices" class="node" style="width: 45%;">
+                            <div class="status-light light-on"></div>
+                            <span class="status-label label-on">online</span>
+                            <img src="assets/lab.png" class="ha-img" alt="zone b devices">
+                            zone b devices
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tailscale-container">
+            <div id="tailscale-tunnel">
+                <span class="info-icon" onclick="">i</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setState(state) {
+            document.querySelectorAll('#controls button').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('btn-' + state);
+            if (activeBtn) activeBtn.classList.add('active');
+            document.body.className = state;
+            updateUI(state);
+        }
+
+        function updateUI(state) {
+            const nodes = document.querySelectorAll('.node');
+            const paths = {
+                internet: document.getElementById('internet-to-zone-a'),
+                zoneA: document.getElementById('zone-a-to-zone-b'),
+                ts: document.getElementById('ts-detailed')
+            };
+            const tailscaleDiv = document.getElementById('tailscale-tunnel');
+
+            // 1. GLOBAL RESET
+            nodes.forEach(node => {
+                const light = node.querySelector('.status-light');
+                const label = node.querySelector('.status-label');
+                const icon = node.querySelector('.icon');
+
+                if (light) light.className = 'status-light light-on';
+                if (label) {
+                    label.className = 'status-label label-on';
+                    label.innerText = 'online';
+                }
+                // Restore router/internet icons
+                if (icon) {
+                    if (icon.innerText === '❌') icon.innerText = '📶';
+                    if (icon.innerText === '⚠️') icon.innerText = '🌐';
+                }
+            });
+
+            if (paths.internet) paths.internet.style.stroke = 'var(--primary)';
+            if (paths.zoneA) paths.zoneA.style.stroke = 'var(--primary)';
+            if (paths.ts) paths.ts.style.stroke = 'var(--secondary)';
+            if (tailscaleDiv) tailscaleDiv.style.borderColor = 'var(--secondary)';
+
+            // 2. APPLY LOGIC
+            if (state === 'zone-b-down') {
+                // Affect only Zone B Network column
+                const zoneBNodes = document.querySelectorAll('#zone-b-network .node');
+                zoneBNodes.forEach(node => {
+                    const l = node.querySelector('.status-light');
+                    const lb = node.querySelector('.status-label');
+                    const ic = node.querySelector('.icon');
+                    if (l) l.className = 'status-light light-off';
+                    if (lb) {
+                        lb.className = 'status-label label-off';
+                        lb.innerText = 'offline';
+                    }
+                    if (ic && ic.innerText === '📶') ic.innerText = '❌';
+                });
+
+                if (paths.zoneA) paths.zoneA.style.stroke = 'var(--status-fail)';
+                if (paths.ts) paths.ts.style.stroke = 'var(--status-fail)';
+                if (tailscaleDiv) tailscaleDiv.style.borderColor = 'var(--status-fail)';
+
+            } else if (state === 'catastrophic') {
+                // Affect EVERYTHING
+                nodes.forEach(node => {
+                    const l = node.querySelector('.status-light');
+                    const lb = node.querySelector('.status-label');
+                    const ic = node.querySelector('.icon');
+                    if (l) l.className = 'status-light light-off';
+                    if (lb) {
+                        lb.className = 'status-label label-off';
+                        lb.innerText = 'offline';
+                    }
+                    if (ic) {
+                        if (ic.innerText === '📶') ic.innerText = '❌';
+                        if (ic.innerText === '🌐') ic.innerText = '⚠️';
+                    }
+                });
+
+                Object.values(paths).forEach(p => { if (p) p.style.stroke = 'var(--status-fail)'; });
+                if (tailscaleDiv) tailscaleDiv.style.borderColor = 'var(--status-fail)';
+            }
+        }
+    </script>
+</body>
+</html>
